@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+		<link type="text/css" rel="styleSheet" href="css/style1.css" th:href="@{static/css/style1.css}" />
+		<link type="text/css" rel="styleSheet" href="css/ExamStyle.css" th:href="@{static/css/ExamStyle.css}" />
+		<link type="text/css" rel="styleSheet" href="css/bank.css" th:href="@{static/css/bank.css}" />
+		<link type="text/css" rel="styleSheet" href="layui/css/layui.css" th:href="@{static/layui/css/layui.css}" />
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js" th:src="@{static/js/jquery-1.8.3.min.js}"></script>
+
+		<script src="layui/layui.js" th:src="@{static/layui/layui.js}"></script>
+
+		<script type="text/javascript">
+			//JavaScript代码区域
+			layui.use('element', function() {
+				var element = layui.element;
+
+			});
+			$(document).ready(function() {
+				$("body").on("hover", ".NavBar-item", function() {
+					$(this).css("background-color", "#BCDDBC");
+				});
+			
+				$("body").on("mouseout", ".NavBar-item", function() {
+					$(this).css("background-color", "#FFFFFF");
+				});
+				
+			});
+			
+			function timetemple(data) {
+				  var date = new Date(data)
+				  var Y = date.getFullYear() + '-'
+				  var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+				  var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
+				  var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+				  var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+				  var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
+				  return Y + M + D + h + m + s
+			}
+			
+			layui.use('layer', function(){
+				  var layer = layui.layer;
+			});
+			
+			function editBank(id , name , intro){
+				layer.open({
+					title: '编辑题库'
+					,btn:['确定','返回']
+					,anim:0
+					,area: ['400px', '330px']
+					,offset: 'auto'
+					,content:'<div class="layui-form layui-form-pane">'
+							+'	<div class="layui-form-item">'
+				    		+'		<label class="layui-form-label" style="color: black;">题库名</label>'
+				    		+'		<div class="layui-input-inline">'
+				      		+'			<input id="edit-bank-name" class="layui-input" type="text" placeholder="'+name+'" autocomplete="off" lay-verify="required">'
+				    		+'		</div>'
+				  			+'	</div>'
+
+				  
+				  			+'<div class="layui-form-item layui-form-text">'
+				    		+'	<label class="layui-form-label" style="color: black;">介绍</label>'
+				    		+'	<div class="layui-input-block">'
+				      		+'		<textarea id="edit-bank-intro"class="layui-textarea" placeholder="'+intro+'"></textarea>'
+				    		+'	</div>'
+				  			+'</div>'
+					  		+'</div>'
+					,btn1:function(index,layero){
+						var name_in = document.getElementById("edit-bank-name").value;
+						var intro_in = document.getElementById("edit-bank-intro").value;
+						
+						name = name_in==''?name:name_in;
+						intro = intro_in==''?intro:intro_in;
+						
+						$.ajax({
+							url:"/editBank?id="+id+"&&name="+name+"&&intro="+intro
+							,success:function(message){
+								layer.closeAll();
+								location.reload(true);
+							}
+							,error: function (message){
+								layer.msg("编辑失败，请重试");
+								location.reload(true);
+							}
+						});
+					}
+					,btn2:function(index,layero){
+							  
+					}
+					}); 
+				
+			}
+			layui.use('form', function() {
+				var form = layui.form;
+				form.render('select');
+				form.render('checkbox');
+				form.render('radio');
+				//各种基于事件的操作，下面会有进一步介绍
+			});
+			
+			function createBank(){
+				
+				layer.open({
+					title: '新建题库'
+					,btn:['确定','返回']
+					,anim:0
+					,area: ['400px', '330px']
+					,offset: 'auto'
+					,content:'<div class="layui-form layui-form-pane">'
+							+'	<div class="layui-form-item">'
+				    		+'		<label class="layui-form-label" style="color: black;" >题库名</label>'
+				    		+'		<div class="layui-input-inline">'
+				      		+'			<input id="creat-bank-name" class="layui-input" type="text" autocomplete="off" lay-verify="required">'
+				    		+'		</div>'
+				  			+'	</div>'
+
+				  
+				  			+'<div class="layui-form-item layui-form-text">'
+				    		+'	<label class="layui-form-label" style="color: black;">介绍</label>'
+				    		+'	<div class="layui-input-block">'
+				      		+'		<textarea id="creat-bank-intro"class="layui-textarea"></textarea>'
+				    		+'	</div>'
+				  			+'</div>'
+					  		+'</div>'
+					,btn1:function(index,layero){
+						var name = document.getElementById("creat-bank-name").value;
+						var intro = document.getElementById("creat-bank-intro").value;
+						
+						if(name == ''){
+							layer.msg('请输入题库名', {
+						        time: 1000 //1s后自动关闭
+								,type:1
+								,end:function(index,layero){
+									layer.close(index);
+								}
+						      });
+							return;
+						}
+						$.ajax({
+							url:"/createBank?name="+name+"&&intro="+intro
+							,success:function(message){
+								layer.closeAll();
+								location.reload(true);
+							}
+							,error: function (message){
+								layer.msg("创建失败，请重试");
+								location.reload(true);
+							}
+						});
+					}
+					,btn2:function(index,layero){
+							  
+					}
+					}); 
+				
+			}
+	
+			function sealBank(bankid,name,source) {
+				var form = layui.form;
+				layer.open({
+					title: '出售题库'
+					,btn:['确定','返回']
+					,anim:0
+					,area: ['400px', '300px']
+					,offset: 'auto'
+					,content:
+							'<div class="layui-form layui-form-pane">'
+							
+				  		    +'	<label class="layui-form-label" style="color: black;" >标签</label>'
+							+'<div class="layui-input-inline goods-Tag">'
+				  		    +'  <select id="skill">'
+				  		    +'    <option value="">请选择题库标签</option>'
+				  		    +'    <option value="IT技术">IT技术</option>'
+				  		    +'    <option value="IT&EQ">IQ&EQ</option>'
+				  		    +'    <option value="招聘真题">招聘真题</option>'
+				  		    +'    <option value="资格证书">资格证书</option>'
+				  		    +'    <option value="学历教育">学历教育</option>'
+				  		    +'    <option value="培训学习">培训学习</option>'
+				  		    +'    <option value="综合测试">综合测试</option>'
+				  		    +'  </select>'
+				  		    +'</div>'
+				  		    
+				  		  	+'<div class="layui-form-item">'
+				    		+'	<label class="layui-form-label" style="color: black;" >商品价格</label>'
+				    		+'	<div class="layui-input-inline">'
+				      		+'		<input id="creat-good-price" class="layui-input" type="text" autocomplete="off" lay-verify="required">'
+				    		+'	</div>'
+				    		+'<span style="font-size: 20px;color: #5FB878;">积分</span>'
+				  			+'</div>'
+				  		    
+				    		+'</div>'
+				  		    
+					,btn1:function(index,layero){
+						
+			            var skill = $("#skill option:selected").val();
+			            var price = $("#creat-good-price").val();
+						//alert(source);
+			            if(source != -1){
+			            	layer.msg('您只能出售自己的题库！', {
+						        time: 1000 //1s后自动关闭
+								,type:1
+								,end:function(index,layero){
+									layer.close(index);
+								}
+						     });
+				        	return;
+			            }
+			            
+			            if(skill == ''){
+				        	layer.msg('标签不能为空', {
+						        time: 1000 //1s后自动关闭
+								,type:1
+								,end:function(index,layero){
+									layer.close(index);
+								}
+						     });
+				        	return;
+				        }
+						
+						if(price == ''){
+				        	layer.msg('请输入价格', {
+						        time: 1000 //1s后自动关闭
+								,type:1
+								,end:function(index,layero){
+									layer.close(index);
+								}
+						     });
+				        	return;
+				        }
+						
+						price = parseInt(price);//如果变量val是字符类型的数则转换为int类型 如果不是则ival为NaN
+						   // alert(typeof(ival));
+						    if(!isNaN(price)&&price>0){
+						    } else{
+						        layer.msg('价格必须为大于0的整数', {
+							        time: 1000 //1s后自动关闭
+									,type:1
+									,end:function(index,layero){
+										layer.close(index);
+									}
+							     });
+					        	return;
+						    }
+						
+						var Jsdata = '{"bankid":'+bankid+',"price":"'+price+'","skill":"'+skill+'","type":0,"sp3":"'+name+'"}';
+						//alert(Jsdata);
+						$.ajax({
+							type:"POST"
+							,dataType:'text'
+							,contentType: "application/json;charset=UTF-8"
+							,data:Jsdata
+							,url:"/creatGoods"
+							,success:function(message){
+								location.reload(true);
+								layer.closeAll();
+							}
+							,error: function (message){
+								layer.msg("发布商品失败，请重试");
+								location.reload(true);
+							}
+						});
+					}
+					,btn2:function(index,layero){
+							  
+					}
+				});
+				form.render('select');
+				form.render('checkbox');
+				form.render('radio');
+			}
+			
+			function shareBank(bankid,source){
+				//分享
+				//var form = layui.form;
+				layer.open({
+					title: '出售题库'
+					,btn:['确定','返回']
+					,anim:0
+					,area: ['400px', '180px']
+					,offset: 'auto'
+					,content:
+							'<div class="layui-form layui-form-pane">'
+							
+				  		  	+'<div class="layui-form-item">'
+				    		+'	<label class="layui-form-label" style="color: black;" >用户名</label>'
+				    		+'	<div class="layui-input-inline">'
+				      		+'		<input id="creat-good-price" class="layui-input" type="text" autocomplete="off" lay-verify="required"  placeholder="请输入要分享的用户名">'
+				    		+'	</div>'
+				  			+'</div>'
+				  		    
+				    		+'</div>'
+				  		    
+					,btn1:function(index,layero){
+						
+			            var name = $("#creat-good-price").val();
+						//alert(source);
+			            if(source != -1){
+			            	layer.msg('您只能分享自己的题库！', {
+						        time: 1000 //1s后自动关闭
+								,type:1
+								,end:function(index,layero){
+									layer.close(index);
+								}
+						     });
+				        	return;
+			            }
+			            
+			            if(name == ''){
+				        	layer.msg('分享对象不能为空', {
+						        time: 1000 //1s后自动关闭
+								,type:1
+								,end:function(index,layero){
+									layer.close(index);
+								}
+						     });
+				        	return;
+				        }
+			            
+						var Jsdata = '{"bankid":'+bankid+',"name":"'+name+'"}';
+						//alert(Jsdata);
+						$.ajax({
+							type:"POST"
+							,dataType:'text'
+							,contentType: "application/json;charset=UTF-8"
+							,data:Jsdata
+							,url:"/shareBanks"
+							,success:function(message){
+								layer.msg("分享成功！");
+								layer.closeAll();
+							}
+							,error: function (message){
+								layer.msg('分享失败，请检查用户名', {
+							        time: 1000 //1s后自动关闭
+									,type:1
+									,end:function(index,layero){
+										layer.close(index);
+									}
+							     });
+					        	return;
+								//location.reload(true);
+							}
+						});
+					}
+					,btn2:function(index,layero){
+							  
+					}
+				});
+				/* form.render('select');
+				form.render('checkbox');
+				form.render('radio'); */
+			}
+			
+		</script>
+		
+
+	</head>
+
+	<body>
+
+		<body class="layui-layout-body">
+			<div class="layui-layout layui-layout-admin header-border">
+				<div class="layui-header " style="background-color:#FFFFFF;">
+					<div class="layui-logo">
+						<img class="title-size" alt="" href="" src="img/title.png" th:src="@{static/img/title.png}">
+					</div>
+					<!-- 头部区域（可配合layui已有的水平导航） -->
+					<div class="layui-nav layui-layout-left">
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="Exam">考试</a>
+					</li>
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="showQuestionBanks">题库</a>
+					</li>
+					<li class="layui-nav-item">
+						<a href="toBuyBank" class="header-font-color">商店</a>
+						
+					</li>
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="Group00">群组</a>
+					</li>
+				</div>
+				<ul class="layui-nav layui-layout-right">
+					<li class="layui-nav-item">
+						<a href="javascript:;" class="header-font-color">
+							<img src="http://t.cn/RCzsdCq" class="layui-nav-img"> 贤心
+						</a>
+						<dl class="layui-nav-child">
+							<dd>
+								<a class="header-font-color" href="touserEdit">基本资料</a>
+							</dd>
+							<dd>
+								<a class="header-font-color" href="showOrder?type=1">交易中心</a>
+							</dd>
+						</dl>
+					</li>
+					<li class="layui-nav-item header-font-color">
+						<a class="header-font-color" href="loginout">退出登录</a>
+					</li>
+				</ul>
+				</div>
+
+				<div class="layui-side" style="margin-top: 10px;margin-left: 10px;">
+					<div class="layui-side-scroll">
+						<!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+						<ul class="layui-nav-tree" lay-filter="test">
+							
+							
+							<li class="NavBar-item">
+								
+								<a class="NavBar-a" href="/showQuestionBanks" ><i class="layui-icon layui-icon-list" style="font-size: 26px; color: darkseagreen;"></i> 我的题库</a>
+							</li>
+							<hr style="height:1px;">
+							<li class="NavBar-item">
+								<a class="NavBar-a" href="/showOrder?type=0" ><i class="layui-icon layui-icon-release" style="font-size: 26px; color: darkseagreen;"></i>分享</a>
+							</li>
+							<hr style="height:1px;">
+							<li class="NavBar-item">
+								<a class="NavBar-a" href="/showashBin"><i class="layui-icon layui-icon-delete" style="font-size: 26px; color: darkseagreen;"></i>回收站</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="layui-body" id="main-body" style="margin-left: 20px;border-left: 1px solid darkseagreen;" >
+					<!-- 内容主体区域 -->
+					<div class = "add-bank">
+		<a id = "add_bank" onclick="createBank()"><i class="layui-icon layui-icon-add-circle" style="font-size: 30px; color: darkseagreen;"></i>创建题库</a>
+	</div>
+	<hr style="height:1px;">
+	<div class = "my_banks" id="my_banks">
+		<div th:each = "bank:${banksList}" class="sigle_bank">
+	
+  			<div class="bank-top">
+    		</div>
+    		<div class="bank-context">	
+    			<div class="bank-left">
+    				<a th:text = "${bank.bankname}" th:href="@{'/showQuestions?id='+${bank.bankid}}+'&&start=0&&count=5'" class = "bank-name"></a>
+    				<a th:text = "${bank.bankintroduction}" th:href="@{'/showQuestions?id='+${bank.bankid}}+'&&start=0&&count=5'" class = "bank-intro"></a>
+    			</div>
+    			<div class="bank-right listbox">
+    				<div class="list-hover"><a  class="layui-icon layui-icon-triangle-d" style="font-size: 15px; color: darkseagreen;"></a>
+    				<span>
+    					<ul class="listcontext"> <!-- 二级菜单 -->
+      					<li><a th:onclick="editBank([[${bank.bankid}]],[[${bank.bankname}]],[[${bank.bankintroduction}]])" class = "layui-icon layui-icon-edit">编辑题库</a></li>
+      					<li><a th:href="@{'/showQuestions?id='+${bank.bankid}}+'&&start=0&&count=5'" class = "layui-icon layui-icon-read" >查看题目</a></li>
+      					<li><a th:onclick="shareBank([[${bank.bankid}]],[[${bank.sourcebankid}]])" class = "layui-icon layui-icon-release" >分享题库</a></li>
+      					<li><a th:onclick="sealBank([[${bank.bankid}]],[[${bank.bankname}]],[[${bank.sourcebankid}]])" class = "layui-icon layui-icon-cart" >出售题库</a></li>
+      					<li><a th:href="@{'/deleteBank?id='+${bank.bankid}}"  class = "layui-icon layui-icon-delete">删除题库</a></li>
+    					</ul>
+    				</span>
+    				</div>
+    			</div>
+  			</div>
+  		 	<div class="bank-bottom">
+  		 		<hr style="height:1px;">
+  		 		<span>
+  		 		<a th:href="@{'/deleteBank?id='+${bank.bankid}}"  class = "question-footer">删除题库</a>
+  		 		<a class="question-footer" th:onclick="editBank([[${bank.bankid}]],[[${bank.bankname}]],[[${bank.bankintroduction}]])">编辑题库</a>
+  		 		</span>
+  		 	</div>
+		
+		</div>
+	</div>
+				</div>
+
+				<div class="layui-footer" style="margin-left: 20px;border-left: 1px solid darkseagreen;background-color: #FFF;">
+					<!-- 底部固定区域 -->
+					© layui.com - 底部固定区域
+				</div>
+			</div>
+
+		</body>
+
+</html>

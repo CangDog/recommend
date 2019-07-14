@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<script type="text/javascript" src="js/jquery-1.8.3.min.js" th:src="@{static/js/jquery-1.8.3.min.js}"></script>
+<script type="text/javascript">
+
+
+$('#check').click(function(){
+
+		var u = {'userid':1,'username':'zzj','password':'wxx','bonuspoints':250,'phonenumber':18842356470,'nickname':'xixi'};//包装成一个js对象
+		$.ajax({
+			url:'toajaxcheck',
+			type:'post',
+			contentType:'application/json;charset=utf-8',//请求的字符编码
+			data:JSON.stringify(u),//转换成json格式字符串
+			dateType:"text",//返回类型
+			success:function(e){
+				alert(e);
+			},
+			error:function(){
+				alert('异步提交失败');
+			}
+		});
+	});
+
+</script>
+</head>
+<body>
+<button id="check" >@Reques5435tBody的用法</button>
+143242
+</body>
+</html>

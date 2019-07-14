@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js" th:src="@{static/js/jquery-1.8.3.min.js}"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$('#check').click(function() {
+
+					var u = {
+						'userid': 1,
+						'username': 'zzj',
+						'password': 'wxx',
+						'bonuspoints': 250,
+						'phonenumber': 18842356470,
+						'nickname': 'xixi'
+					}; //包装成一个js对象
+					$.ajax({
+						url: 'toajaxcheck',
+						type: 'post',
+						contentType: 'application/json;charset=utf-8', //请求的字符编码
+						data: JSON.stringify(u), //转换成json格式字符串
+						dateType: "text", //返回类型
+						success: function(e) {
+							alert(e);
+						},
+						error: function() {
+							alert('异步提交失败');
+						}
+					});
+
+					window.location.href = "Exam";
+
+				});
+				$('#check1').click(function() {
+
+					$.ajax({
+						url: 'getBankList',
+						type: 'post',
+						contentType: 'application/json;charset=utf-8', //请求的字符编码
+						dateType: "text", //返回类型
+						success: function(e) {
+							alert(e);
+							var obj = JSON.parse(e); //将字符串转换成json对象
+
+							var new_html = template("test1", obj); //将json对象绑定到artTemplate模板上
+
+							$('#bank-list').html(new_html);
+						},
+						error: function() {
+							alert('异步提交失败');
+						}
+					});
+
+				});
+			});
+		</script>
+
+		<script type="text/html" id="test1">
+
+			{{each BankList as value}}
+
+			<div class="one-bank" style="cursor:pointer;color:#fff;background-color: #5FB878;border-radius:7px; margin-top: 10px;padding-top: 10px;margin-left: 10px;padding-left: 5px;padding-bottom: 10px;border-left: 4px solid #5FB878;">
+				<div class="bank-name" style="display: inline;">
+					<span>{{value.bankname}}</span>
+				</div>
+				<div class="bank-img" style="display:inline;">
+					<span class="layui-badge layui-bg-blue">99</span>
+				</div>
+			</div>
+
+			{{/each}}
+		</script>
+
+	</head>
+
+	<body>
+		<button id="check">@RequestB1o425321dy的用法</button>
+		<button id="check1">@RequestB1o425321dy的用法</button>
+		<div id="bank-list" th:fragment="bank-list">
+			<div class="one-bank" style="cursor:pointer;color:#fff;background-color: #5FB878;border-radius:7px; margin-top: 10px;padding-top: 10px;margin-left: 10px;padding-left: 5px;padding-bottom: 10px;border-left: 4px solid #5FB878;">
+				<div class="bank-name" style="display: inline;">
+					<span>{{value.bankname}}</span>
+				</div>
+				<div class="bank-img" style="display:inline;">
+					<span class="layui-badge layui-bg-blue">99</span>
+				</div>
+			</div>
+		</div>
+
+	</body>
+
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+		<link type="text/css" rel="styleSheet" href="css/style1.css" th:href="@{static/css/style1.css}" />
+		<link type="text/css" rel="styleSheet" href="css/ExamStyle.css" th:href="@{static/css/ExamStyle.css}" />
+		<link type="text/css" rel="styleSheet" href="css/bank.css" th:href="@{static/css/bank.css}" />
+		<link type="text/css" rel="styleSheet" href="layui/css/layui.css" th:href="@{static/layui/css/layui.css}" />
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js" th:src="@{static/js/jquery-1.8.3.min.js}"></script>
+
+		<script src="layui/layui.js" th:src="@{static/layui/layui.js}"></script>
+
+		<script type="text/javascript">
+			//JavaScript代码区域
+			layui.use('element', function() {
+				var element = layui.element;
+
+			});
+			
+			layui.use('form', function() {
+				var form = layui.form;
+				form.render('select');
+				form.render('checkbox');
+				form.render('radio');
+				//各种基于事件的操作，下面会有进一步介绍
+			});
+			$(document).ready(function() {
+				$("body").on("hover", ".NavBar-item", function() {
+					$(this).css("background-color", "#BCDDBC");
+				});
+			
+				$("body").on("mouseout", ".NavBar-item", function() {
+					$(this).css("background-color", "#FFFFFF");
+				});
+				
+				
+			});
+			
+			function timetemple(data) {
+				  var date = new Date(data*1000)
+				  var Y = date.getFullYear() + '-'
+				  var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+				  var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
+				  var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+				  var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+				  var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
+				  return Y + M + D + h + m + s
+			}
+			
+			$(function(){
+				var times = $(".time");
+
+				$.each(times,function(index,time){
+					var time_num = $(time).text();
+					$(time).text(timetemple(parseInt(time_num)));      
+				});
+				
+			})
+			
+			function searchOrder() {
+				var form = layui.form;
+				var text = $("#search").val();
+				//alert(text);
+				if(text=='')return;
+				$("#search").val("");
+				$("#getShares").empty();
+				list = "[[${ordersJSON}]]";
+				list = list.replace(/&quot;/g,'"');
+				var orders = JSON.parse(list);
+				$.each(orders,function(index,order){
+					//alert(order.orderid);
+					//alert(order.spare3);
+					if (order.orderid == parseInt(text) || order.spare3.indexOf(text) >= 0) {
+						var add='<span class="one-order">'
+								+'	<div><p>'+order.orderid+'</p></div>'
+								+'<div><p>'+order.spare3+'</p></div>'
+								+'<div><p>'+order.bonuspointsnum+'</p></div>'
+								+'<div><p class="time">'+timetemple(order.createtime)+'</p></div>'
+								+'</span>';
+						$("#getShares").append(add);
+					}
+				});
+			}
+			
+			function allOrder() {
+				$("#getShares").empty();
+	            //var url = $(this).data('url');
+	            
+		        list = "[[${ordersJSON}]]";
+				list = list.replace(/&quot;/g,'"');
+				var orders = JSON.parse(list);
+				$.each(orders,function(index,order){
+					//alert(order.orderid);
+					//alert(order.spare3);
+					//if (order.orderid == parseInt(text) || order.spare3==text) {
+					var add='<span class="one-order">'
+							+'	<div><p>'+order.orderid+'</p></div>'
+							+'<div><p>'+order.spare3+'</p></div>'
+							+'<div><p>'+order.bonuspointsnum+'</p></div>'
+							+'<div><p class="time">'+timetemple(order.createtime)+'</p></div>'
+							+'</span>';
+					$("#getShares").append(add);
+						//}
+				});	
+			}
+			
+		</script>
+		
+
+	</head>
+
+	<body>
+
+		<body class="layui-layout-body">
+			<div class="layui-layout layui-layout-admin header-border">
+				<div class="layui-header " style="background-color:#FFFFFF;">
+					<div class="layui-logo">
+						<img class="title-size" alt="" href="" src="img/title.png" th:src="@{static/img/title.png}">
+					</div>
+					<!-- 头部区域（可配合layui已有的水平导航） -->
+					<div class="layui-nav layui-layout-left">
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="Exam">考试</a>
+					</li>
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="showQuestionBanks">题库</a>
+					</li>
+					<li class="layui-nav-item">
+						<a href="toBuyBank" class="header-font-color">商店</a>
+						
+					</li>
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="Group00">群组</a>
+					</li>
+				</div>
+				<ul class="layui-nav layui-layout-right">
+					<li class="layui-nav-item">
+						<a href="javascript:;" class="header-font-color">
+							<img src="http://t.cn/RCzsdCq" class="layui-nav-img"> 贤心
+						</a>
+						<dl class="layui-nav-child">
+							<dd>
+								<a class="header-font-color" href="touserEdit">基本资料</a>
+							</dd>
+							<dd>
+								<a class="header-font-color" href="showOrder?type=1">交易中心</a>
+							</dd>
+						</dl>
+					</li>
+					<li class="layui-nav-item header-font-color">
+						<a class="header-font-color" href="loginout">退出登录</a>
+					</li>
+				</ul>
+				</div>
+
+				<div class="layui-side" style="margin-top: 10px;margin-left: 10px;">
+					<div class="layui-side-scroll">
+						<!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+						<ul class="layui-nav-tree" lay-filter="test">
+							
+							
+							<li style="background-color: rgb(255, 255, 255);text-align: center;height: 90px;">		
+								<p class="center-title">交易中心</a>
+							</li>
+							<hr style="height:1px;">
+							<li class="NavBar-item">
+								<a class="NavBar-a" href="/showOrder?type=1" ><i class="layui-icon layui-icon-cart-simple" style="font-size: 26px; color: darkseagreen;"></i>购买记录</a>
+							</li>
+							<hr style="height:1px;">
+							<li class="NavBar-item">
+								<a class="NavBar-a" href="/showPoints"><i class="layui-icon layui-icon-dollar" style="font-size: 26px; color: darkseagreen;"></i>提现/充值记录</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="layui-body" id="main-body" style="margin-left: 20px;border-left: 1px solid darkseagreen;" >
+					<!-- 内容主体区域 -->
+	<div class="order_search">
+	<div class="layui-form layui-form-pane" style="font-size: 20px;color: black;">
+		<div class="layui-form-item">
+    		<label class="layui-form-label">搜索</label>
+    		<div class="layui-input-inline">
+      			<input  id ="search" name="username" class="layui-input" type="text" placeholder="商品名/订单id" autocomplete="off" lay-verify="required">
+    		</div>
+    		<button class="layui-btn layui-btn-normal" type="button" onclick="searchOrder()">搜索</button>
+    		<button class="layui-btn  layui-btn-primary" type="button" onclick="allOrder()">查看所有</button>
+  		</div>
+	</div>
+	<hr style="height:1px;">
+	<div class = "my_orders">
+		<div class="order-title one-order">
+		<div ><p>订单号</p></div>
+		<div ><p>商品名</p></div>
+		<div ><p>价格（积分）</p></div>
+		<div ><p>下单时间</p></div>
+		</div>
+		<div id="getShares">
+			<span class="one-order" th:each="order:${orders}">
+				<div><p th:text = "${order.orderid}"></p></div>
+				<div><p th:text = "${order.spare3}"></p></div>
+				<div><p th:text = "${order.bonuspointsnum}"></p></div>
+				<div><p th:text="${order.createtime}" class="time"></p></div>
+			</span>
+		</div>
+	</div>
+				</div>
+
+				<div class="layui-footer" style="margin-left: 20px;border-left: 1px solid darkseagreen;background-color: #FFF;">
+					<!-- 底部固定区域 -->
+					© layui.com - 底部固定区域
+				</div>
+			</div>
+
+		</body>
+
+</html>

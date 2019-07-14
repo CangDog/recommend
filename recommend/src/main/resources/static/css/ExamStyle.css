@@ -1,0 +1,72 @@
+.header-font-color{color:#000!important;}
+.header-border{border-bottom:3px solid darkseagreen}
+.title-size{
+ width:70%;
+ height:70%;
+}
+.NavBar-background{
+	background-color: #F1FCFA!important;
+}
+.NavBar-item{
+	text-align:center;line-height:40px;
+}
+.NavBar-a{
+	overflow:hidden;vertical-align:middle;display:block;width: 200px;height: 40px;font-size: 16px;
+}
+
+.choose-container{
+	display:inline-block;
+	width: 550px!important;
+	height: 250px!important;
+}
+
+.hand-movement{
+	z-index:9999;
+	cursor:pointer;
+	position:absolute;
+	left:95px;
+	top:60px;
+	width: 160px;
+	height: 120px;
+	border: 1px solid gainsboro;
+}
+
+.voluntarily{
+	z-index:9999;
+	cursor:pointer;
+	position:absolute;
+	top:60px;
+	left:315px;
+	width: 160px;
+	height: 120px;
+	border: 1px solid gainsboro;
+}
+
+.hand-movement-img{
+	margin-left: 60px;
+	margin-top: 10px;
+}
+
+.voluntarily-img{
+	margin-left: 60px;
+	margin-top: 10px;
+}
+
+.choose-info{
+	color: #888888;
+}
+
+.choose-title{
+	color: #222222;
+}
+
+.bank-checked{
+	border-radius:7px;
+	background-color: #5FB878;
+	color: #FFF;
+}
+
+.bank-unchecked{
+
+	color: #000;
+}

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>群组(学生界面)</title>
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="../static/group/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../static/group/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <link href="../static/group/css/animate.css" rel="stylesheet">
+    <link href="../static/group/css/style.css?v=4.1.0" rel="stylesheet">
+    <!-- 全局js -->
+    <script src="../static/group/js/jquery.min.js?v=2.1.4"></script>
+    <script src="../static/group/js/bootstrap.min.js?v=3.3.6"></script>
+    <!-- 自定义js -->
+    <script src="../static/group/js/content.js?v=1.0.0"></script>
+    
+    		<link type="text/css" rel="styleSheet" href="css/ExamStyle.css" th:href="@{static/css/ExamStyle.css}" />
+		<link type="text/css" rel="styleSheet" href="layui/css/layui.css" th:href="@{static/layui/css/layui.css}" />
+
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js" th:src="@{static/js/jquery-1.8.3.min.js}"></script>
+		<script src="layui/layui.js" th:src="@{static/layui/layui.all.js}"></script>
+		<script src="layui/layer/layer.js" th:src="@{static/layui/layer/layer.js}"></script>
+		<script type="text/javascript" src="js/template.js" th:src="@{static/js/template.js}"></script>
+    <script>
+        $(document).ready(function () {
+            $('.file-box').each(function () {
+                animationHover(this, 'pulse');
+            });
+        });
+    </script>
+    <script type="text/javascript" th:inline="javascript">
+
+    
+//初始化
+$(document).ready(function(){
+	//alert(1);
+	var qq = [[${gau}]];
+	var boo = true;
+	//alert(1);
+	$(qq).each(function(){
+		//alert(this.group.groupid)
+		if(boo){
+			var id = this.group.groupid;
+			$("#group_"+id).show();
+			var noticeId = "notice_"+this.group.groupid;
+			$(".notice").text(this.group.introduction).attr("id",noticeId);
+			boo = false;
+		}
+	})	
+})
+
+//切换群组
+function showGroup(groupId){
+	
+	var qq = [[${gau}]];
+	
+	$(qq).each(function(){
+			var id = this.group.groupid;
+			$("#group_"+id).hide();
+			if(this.group.groupid == groupId){
+				var noticeId = "notice_"+this.group.groupid;
+				$(".notice").text(this.group.introduction).attr("id",noticeId);
+			}
+	})
+	$("#group_"+groupId).show();
+    }
+    
+    
+    
+//加入群组
+function hhhhh(){
+	
+
+	var groupName=prompt("输入群组名称","");
+	if(groupName == null || groupName == ""){
+	}else{
+	$.ajax({
+		type : "post",
+		url : "JoinGroup",
+		data : {
+			groupName : groupName,
+			userid:3
+		},success : function(data){
+			if(data == "1"){
+				alert('加入群组');
+			}else if(data == "-1"){
+				alert('无此群组！');
+			}else if(data == "-2"){
+				alert('加入过此群组！');
+			}
+		}	
+	})	
+	}
+} 
+
+    
+    //退出群组
+    function outGroup(ids){
+    	var id = ids.split("_");
+    	//alert(id);
+    	//id[0] groupid  id[1]  userid  DeletMember
+    	$.ajax({
+    		type : "post",
+    		url : "OutGroup",
+    		data : {
+    			groupid : id[1]
+    		},success : function(data){
+    			window.location.href="/student";
+    			
+    		},
+    		
+    	})
+    }
+    
+  
+   
+    
+    
+   
+
+    
+
+</script>
+</head>
+<body>
+<div class="layui-layout layui-layout-admin header-border">
+	<div class="layui-header" style="background-color:#FFFFFF;">
+					<div class="layui-logo">
+						<img class="title-size" alt="" href="" src="img/title.png" th:src="@{static/img/title.png}">
+					</div>
+					<!-- 头部区域（可配合layui已有的水平导航） -->
+					<div class="layui-nav layui-layout-left">
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="Exam">考试</a>
+					</li>
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="showQuestionBanks">题库</a>
+					</li>
+					<li class="layui-nav-item">
+						<a href="toBuyBank" class="header-font-color">商店</a>
+						
+					</li>
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="Group00">群组</a>
+					</li>
+				</div>
+				<ul class="layui-nav layui-layout-right">
+					<li class="layui-nav-item">
+						<a href="javascript:;" class="header-font-color">
+							<img src="http://t.cn/RCzsdCq" class="layui-nav-img"> 贤心
+						</a>
+						<dl class="layui-nav-child">
+							<dd>
+								<a class="header-font-color" href="touserEdit">基本资料</a>
+							</dd>
+							<dd>
+								<a class="header-font-color" href="showOrder?type=1">交易中心</a>
+							</dd>
+						</dl>
+					</li>
+					<li class="layui-nav-item header-font-color">
+						<a class="header-font-color" href="loginout">退出登录</a>
+					</li>
+				</ul>
+				</div>
+</div>
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <div class="file-manager">
+                            <button class="btn btn-primary btn-block" onclick="hhhhh()"  >加入群组</button>
+                            <div class="hr-line-dashed"></div>
+                            <h5>群组列表</h5>
+                            <ul class="folder-list" style="padding: 0">
+                            	<li th:each="gau,state : ${gau}" >
+                            	<a th:id="${gau['group']['groupid']}"  th:text="${gau['group']['name']}" onclick="showGroup(this.id)"><i class="fa fa-folder"></i></a>
+                            	<a th:id="@{'delete_'+${gau['group']['groupid']}}" onclick="outGroup(this.id)">退出群组</a>
+                            	<a th:id="@{'add_'+${gau['group']['groupid']}}" onclick="home(this.id)">完成作业</a>
+                            	
+                            	
+                            	</li> 
+                                <!-- <li><a href="file_manager.html"><i class="fa fa-folder"></i> 文件</a>
+                                </li> -->
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-9 animated fadeInRight">
+                <div class="row">
+                    <div class="col-sm-12">
+                  
+                    <span>公告：</span>
+                    <span class="notice" id="" ></span><br>
+                    
+                    <div th:each="gau,state : ${gau}" th:id="@{'group_'+${gau['group']['groupid']}}" style="display : none">
+                    <div th:each="user,state : ${gau['users']}" class="file-box" th:id="@{'user_'+${user['userid']}}">
+                            <div class="file">
+                                <a>
+                                    <span class="corner"></span>
+                                    <div class="file-name">
+                                    <span  th:text="${user['username']}"></span>
+                                    <span th:text="${user['userid']}"></span>
+                                        <br/>
+                                        <small></small>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+		<link type="text/css" rel="styleSheet" href="css/style1.css" th:href="@{static/css/style1.css}" />
+		<link type="text/css" rel="styleSheet" href="css/ExamStyle.css" th:href="@{static/css/ExamStyle.css}" />
+		<link type="text/css" rel="styleSheet" href="css/bank.css" th:href="@{static/css/bank.css}" />
+		<link type="text/css" rel="styleSheet" href="layui/css/layui.css" th:href="@{static/layui/css/layui.css}" />
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js" th:src="@{static/js/jquery-1.8.3.min.js}"></script>
+
+		<script src="layui/layui.js" th:src="@{static/layui/layui.js}"></script>
+
+		<script type="text/javascript">
+			//JavaScript代码区域
+			layui.use('element', function() {
+				var element = layui.element;
+
+			});
+			
+			layui.use('form', function() {
+				var form = layui.form;
+				form.render('select');
+				form.render('checkbox');
+				form.render('radio');
+				//各种基于事件的操作，下面会有进一步介绍
+			});
+			
+			layui.use('layer', function(){
+				  var layer = layui.layer;
+			});
+			
+			$(document).ready(function() {
+				$("body").on("hover", ".NavBar-item", function() {
+					$(this).css("background-color", "#BCDDBC");
+				});
+			
+				$("body").on("mouseout", ".NavBar-item", function() {
+					$(this).css("background-color", "#FFFFFF");
+				});
+				
+				
+			});
+			
+			function timetemple(data) {
+				  var date = new Date(data*1000)
+				  var Y = date.getFullYear() + '-'
+				  var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+				  var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
+				  var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+				  var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+				  var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
+				  return Y + M + D + h + m + s
+			}
+			
+			$(function(){
+				var times = $(".time");
+
+				$.each(times,function(index,time){
+					var time_num = $(time).text();
+					$(time).text(timetemple(parseInt(time_num)));      
+				});
+				
+			})
+			
+			
+			function showOnly(data) {
+				
+				list = "[[${recordJSON}]]";
+				list = list.replace(/&quot;/g,'"');
+				var records = JSON.parse(list);
+
+				$("#getShares").empty();
+				if(data != -1){
+					$.each(records,function(index,record){
+
+						if (data == record.operatetype) {
+							var add = '<span class="one-order">'
+								+'<div><p>'+record.recordid+'</p></div>'
+								+'<div><p>'+record.bonuspointsnum+'</p></div>';
+								if (data == 1) {
+									add = add+'<div><p>充值</p></div>';
+								}else{
+									add = add+'<div><p>提现</p></div>';
+								}
+							add = add+'</div>'
+								+'<div><p class="time">'+timetemple(record.operatetime)+'</p></div>'
+							<!-- <div><p th:text = "${record.account}"></p></div> -->
+								+'</span>';
+							$("#getShares").append(add);
+						}
+							//}
+					});	
+				}else{
+					$.each(records,function(index,record){
+						var add = '<span class="one-order">'
+							+'<div><p>'+record.recordid+'</p></div>'
+							+'<div><p>'+record.bonuspointsnum+'</p></div>';
+							if (data == 1) {
+								add = add+'<div><p>充值</p></div>';
+							}else{
+								add = add+'<div><p>提现</p></div>';
+							}
+						add = add+'</div>'
+							+'<div><p class="time">'+timetemple(record.operatetime)+'</p></div>'
+						<!-- <div><p th:text = "${record.account}"></p></div> -->
+							+'</span>';
+						$("#getShares").append(add);
+					});	
+				}
+				
+			}
+			
+			function recharge() {
+				//充值
+				layer.open({
+					title: '充值'
+					,btn:['充值','取消']
+					,anim:0
+					,area: ['400px', '250px']
+					,offset: 'auto'
+					,content:'<div class="layui-form layui-form-pane">'
+							+'	<div class="layui-form-item">'
+				    		+'		<label class="layui-form-label" style="color: black;">充值积分</label>'
+				    		+'		<div class="layui-input-inline">'
+				      		+'			<input id="edit-bank-name" class="layui-input" type="text" placeholder="请输入正整数" autocomplete="off" lay-verify="required">'
+				    		+'		</div>'
+				  			+'	</div>'
+
+				  
+				  			+'<div class="layui-form-item money-show" >'
+				    		+'	<label class="layui-form-label" style="color: black;width:120px">折合人民币：</label>'
+				    		+'	<label class="layui-form-label" style="color: black;width:130px" id = "money" ></label>'
+				    		+'	<label class="layui-form-label" style="color: black;width:50px;">元</label>'
+				  			+'</div>'
+					  		+'</div>'
+					,btn1:function(index,layero){
+						var pt = $("#edit-bank-name").val();
+						//alert(pt);
+						pt = parseInt(pt);//如果变量val是字符类型的数则转换为int类型 如果不是则ival为NaN
+						   // alert(typeof(ival));
+						if(!isNaN(pt)&&pt>0){
+						} else{
+						      	layer.msg('充值积分必须为大于0的整数', {
+							  	time: 1000 //1s后自动关闭
+							  	,type:1
+								,end:function(index,layero){
+									layer.close(index);
+								}
+						     	});
+					        return;
+						}
+						
+						pt = -pt;
+						var Jsdata = '{"points":'+pt+'}';
+						//alert(Jsdata);
+						$.ajax({
+							type:"POST"
+							,dataType:'text'
+							,contentType: "application/json;charset=UTF-8"
+							,data:Jsdata
+							,url:"/creatRecord"
+							,success:function(message){
+								if (message == "notEnough") {
+									layer.msg('操作失败，余额不足', {
+									  	time: 1000 //1s后自动关闭
+									  	,type:1
+										,end:function(index,layero){
+											layer.close(index);
+										}
+								     });
+								}if(message == "success"){
+									showOnly(-1);
+									//layer.msg("操作成功");
+									location.reload(true);
+								}
+							}
+							,error: function (message){
+								layer.msg("操作失败，请重试");
+								location.reload(true);
+							}
+						});
+					}
+					,btn2:function(index,layero){
+							  
+					}
+					}); 
+				
+					$("#edit-bank-name").keyup(function(){
+						var pt = $("#edit-bank-name").val();
+						pt = parseInt(pt);
+						if (!isNaN(pt)) {
+							$("#money").text(pt/10);
+						}
+					});
+					
+					
+			}
+			
+			function deposit() {
+				layer.open({
+					title: '充值'
+					,btn:['提现','取消']
+					,anim:0
+					,area: ['400px', '250px']
+					,offset: 'auto'
+					,content:'<div class="layui-form layui-form-pane">'
+							+'	<div class="layui-form-item">'
+				    		+'		<label class="layui-form-label" style="color: black;">提现积分</label>'
+				    		+'		<div class="layui-input-inline">'
+				      		+'			<input id="edit-bank-name" class="layui-input" type="text" placeholder="请输入正整数" autocomplete="off" lay-verify="required">'
+				    		+'		</div>'
+				  			+'	</div>'
+
+				  
+				  			+'<div class="layui-form-item money-show" >'
+				    		+'	<label class="layui-form-label" style="color: black;width:120px;">折合人民币：</label>'
+				    		+'	<label class="layui-form-label" style="color: black;width:130px" id = "money" ></label>'
+				    		+'	<label class="layui-form-label" style="color: black;width:50px;">元</label>'
+				  			+'</div>'
+					  		+'</div>'
+					,btn1:function(index,layero){
+						var pt = $("#edit-bank-name").val();
+						//alert(pt);
+						pt = parseInt(pt);//如果变量val是字符类型的数则转换为int类型 如果不是则ival为NaN
+						   // alert(typeof(ival));
+						if(!isNaN(pt)&&pt>0){
+						} else{
+						      	layer.msg('提现积分必须为大于0的整数', {
+							  	time: 1000 //1s后自动关闭
+							  	,type:1
+								,end:function(index,layero){
+									layer.close(index);
+								}
+						     	});
+					        return;
+						}
+						
+						//points = -points;
+						var Jsdata = '{"points":'+pt+'}';
+						//alert(Jsdata);
+						$.ajax({
+							type:"POST"
+							,dataType:'text'
+							,contentType: "application/json;charset=UTF-8"
+							,data:Jsdata
+							,url:"/creatRecord"
+							,success:function(message){
+								if (message == "notEnough") {
+									layer.msg('操作失败，余额不足', {
+									  	time: 1000 //1s后自动关闭
+									  	,type:1
+										,end:function(index,layero){
+											layer.close(index);
+										}
+								     });
+								}if(message == "success"){
+									showOnly(-1);
+									//layer.msg("操作成功");
+									location.reload(true);
+								}
+							}
+							,error: function (message){
+								layer.msg("操作失败，请重试");
+							}
+						});
+					}
+					,btn2:function(index,layero){
+							  
+					}
+					}); 
+					//一元人名币-----10积分10/10
+					//10积分-------0.8人名币10/100*8
+					$("#edit-bank-name").keyup(function(){
+						var pt = $("#edit-bank-name").val();
+						//alert(pt);
+						pt = parseInt(pt);
+						if (!isNaN(pt)) {
+							$("#money").text(pt/100*8);
+						}					
+					});
+				//提现
+			}
+		</script>
+		
+
+	</head>
+
+	<body>
+
+		<body class="layui-layout-body">
+			<div class="layui-layout layui-layout-admin header-border">
+				<div class="layui-header " style="background-color:#FFFFFF;">
+					<div class="layui-logo">
+						<img class="title-size" alt="" href="" src="img/title.png" th:src="@{static/img/title.png}">
+					</div>
+					<!-- 头部区域（可配合layui已有的水平导航） -->
+					<div class="layui-nav layui-layout-left">
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="Exam">考试</a>
+					</li>
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="showQuestionBanks">题库</a>
+					</li>
+					<li class="layui-nav-item">
+						<a href="toBuyBank" class="header-font-color">商店</a>
+						
+					</li>
+					<li class="layui-nav-item">
+						<a class="header-font-color" href="Group00">群组</a>
+					</li>
+				</div>
+				<ul class="layui-nav layui-layout-right">
+					<li class="layui-nav-item">
+						<a href="javascript:;" class="header-font-color">
+							<img src="http://t.cn/RCzsdCq" class="layui-nav-img"> 贤心
+						</a>
+						<dl class="layui-nav-child">
+							<dd>
+								<a class="header-font-color" href="touserEdit">基本资料</a>
+							</dd>
+							<dd>
+								<a class="header-font-color" href="showOrder?type=1">交易中心</a>
+							</dd>
+						</dl>
+					</li>
+					<li class="layui-nav-item header-font-color">
+						<a class="header-font-color" href="loginout">退出登录</a>
+					</li>
+				</ul>
+				</div>
+
+				<div class="layui-side" style="margin-top: 10px;margin-left: 10px;">
+					<div class="layui-side-scroll">
+						<!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+						<ul class="layui-nav-tree" lay-filter="test">
+							
+							
+							<li style="background-color: rgb(255, 255, 255);text-align: center;height: 90px;">		
+								<p class="center-title">交易中心</a>
+							</li>
+							<hr style="height:1px;">
+							<li class="NavBar-item">
+								<a class="NavBar-a" href="/showOrder?type=1" ><i class="layui-icon layui-icon-cart-simple" style="font-size: 26px; color: darkseagreen;"></i>购买记录</a>
+							</li>
+							<hr style="height:1px;">
+							<li class="NavBar-item">
+								<a class="NavBar-a" href="/showPoints"><i class="layui-icon layui-icon-dollar" style="font-size: 26px; color: darkseagreen;"></i>提现记录</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="layui-body" id="main-body" style="margin-left: 20px;border-left: 1px solid darkseagreen;" >
+					<!-- 内容主体区域 -->
+	<div class="order_search">
+	<div class="layui-form layui-form-pane">
+		<div class="layui-form-item">
+    		<div class="point-info">
+    			<p class="point-text" style="color:#8FBC8F;">您的剩余积分为：</p>
+    			<p th:text="${points}" class="last-point"></p>
+    		</div>
+    		<div class="point-btn">
+    			<button class="layui-btn layui-btn-normal" type="button" onclick="recharge()">充值</button>
+    			<button class="layui-btn  layui-btn-primary" type="button" onclick="deposit()">提现</button>
+    		</div>
+  		</div>
+  	</div>
+	<div class="show-btn-box">
+    	<button class="layui-btn layui-btn-primary show-filter" type="button" onclick="showOnly(1)">仅查看充值</button>
+    	<button class="layui-btn  layui-btn-primary show-filter" type="button" onclick="showOnly(0)">仅查看提现</button>
+    	<button class="layui-btn  layui-btn-primary show-filter" type="button" onclick="showOnly(-1)">所有</button>
+	</div>
+	<hr style="height:1px;">
+	<div class = "my_orders">
+		<div class="order-title one-order">
+		<div ><p>流水号</p></div>
+		<div ><p>积分值</p></div>
+		<div ><p>交易类型</p></div>
+		<div ><p>交易时间</p></div>
+		<!-- <div ><p>交易途径</p></div> -->
+		</div>
+		<div id="getShares">
+			<span class="one-order" th:each="record:${record}">
+				<div><p th:text = "${record.recordid}"></p></div>
+				<div><p th:text = "${record.bonuspointsnum}"></p></div>
+				<div th:switch="${record.operatetype}">
+					<p th:case="1">充值</p>
+					<p th:case="0">提现</p>
+				</div>
+				<div><p th:text="${record.operatetime}" class="time"></p></div>
+				<!-- <div><p th:text = "${record.account}"></p></div> -->
+			</span>
+		</div>
+	</div>
+				</div>
+
+				<div class="layui-footer" style="margin-left: 20px;border-left: 1px solid darkseagreen;background-color: #FFF;">
+					<!-- 底部固定区域 -->
+					© layui.com - 底部固定区域
+				</div>
+			</div>
+
+		</body>
+
+</html>
